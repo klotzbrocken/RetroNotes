@@ -1,32 +1,78 @@
 # RetroNotes
 
-Nachbau von Notes (OS X 10.8) im skeuomorphen Design. **Keine eigene Datenbank:** Konten, Ordner und Notizen werden über die
-Scripting-Schnittstelle (JXA/osascript) aus der System-App „Notizen“ gelesen und dorthin zurückgeschrieben.
+A native macOS recreation of **Notes from OS X 10.8**: leather header, yellow lined paper, traffic lights. No mock-up and no database of its own – accounts, folders and notes are read from the system *Notes* app via its scripting interface (JXA/osascript) and written back to it.
 
+<p align="center"><img src="docs/screenshots/hero.png" alt="RetroNotes, main window" width="820"></p>
+
+> Swift 5.9 · AppKit · macOS 14 or later · English and German · GPL-3.0
+>
+> **Note:** RetroNotes is an independent project and is not affiliated with Apple Inc. The design is *inspired by* OS X 10.8. Apple, Mac, macOS, OS X and Mountain Lion are trademarks of Apple Inc.
+
+## Features
+
+- **Your real notes** – accounts, folders and notes come from the system Notes app; changes are written back, nothing is copied into a private store.
+- **Skeuomorphic UI** – leather title bar, torn-paper edge, lined paper, sidebar with accounts and folders, list of notes.
+- **Rich-text editor** – formatted text is converted between the system Notes HTML and the editor (self-test: `-selftest`).
+- **Single-note windows and full-screen** – open a note in its own window or work in full-screen.
+- **Image attachments** – drag and drop or insert PNG, JPEG, GIF and TIFF (up to 20 MP) into a note; Notes stores them as real attachments.
+- **Backup and restore** – *File › Back up all notes …* writes a folder with `manifest.json` (schema 1) plus one unchanged `.html` per note under `Account/Folder/`; *Restore from backup …* re-creates missing notes (by ID) and missing folders.
+- **Search** – across the first 2000 characters of each note.
+- **Privacy** – all data stays in the system Notes app; RetroNotes makes no network connections and asks for Automation access to Notes on first launch.
+
+## Screenshots
+
+<table>
+<tr>
+<td><img src="docs/screenshots/hero.png" alt="Main window with sidebar, note list and editor"></td>
+<td><img src="docs/screenshots/single-note.png" alt="Single-note window" width="360"></td>
+</tr>
+<tr><td align="center">Main window</td><td align="center">Single-note window</td></tr>
+</table>
+
+*All images show demo data (`-demo`), not real notes. Re-create them with `build/RetroNotes.app/Contents/MacOS/RetroNotes -demo -select=1 -snap=out.png -quit`.*
+
+## Installation
+
+Download the signed and notarized DMG from the [latest release](../../releases), open it and drag the app to *Applications*. Requires macOS 14 or later (Apple Silicon and Intel). On first launch macOS asks once for permission to control the Notes app.
+
+## Build from source
+
+```bash
+./build.sh                        # builds build/RetroNotes.app
+./release.sh                      # Developer ID + hardened runtime → notarize → DMG (add "publish" for a GitHub release)
+Reference/make_assets.py          # re-generate textures and app icon
 ```
-./build.sh                                   # → build/RetroNotes.app
-Reference/make_assets.py                     # Texturen + AppIcon neu erzeugen
-MLNotes -demo -select=1 -snap=/tmp/x.png -quit   # Demo-Daten (Referenzszene), PNG 1 px/pt; -single, -full, -size=WxH, -delay=s
-python3 Reference/compare.py /tmp/x.png      # Pixelvergleich gegen Referenz (notes-big.png), optional Ausschnitt + Zoom
-MLNotes -selftest                            # HTML↔Rich-Text-Roundtrip
+
+`release.sh` needs a "Developer ID Application" certificate in the keychain and a `notarytool` profile (`NOTARY_PROFILE`, default `Retromac`). Entitlements: Apple Events/Automation only (`Resources/RetroNotes.entitlements`).
+
+## Testing
+
+```bash
+APP=build/RetroNotes.app/Contents/MacOS/RetroNotes
+$APP -selftest                                    # HTML ↔ rich-text round trip
+$APP -demo -select=1 -snap=/tmp/x.png -quit       # demo data, PNG at 1 px/pt (also -single, -full, -size=WxH, -delay=s)
+python3 Reference/compare.py /tmp/x.png           # pixel comparison against the reference (notes-big.png), optional crop and zoom
+$APP -backup=PATH   /   $APP -restore=PATH        # test hooks for backup and restore
 ```
-Maße (1×, aus der Referenz): Lederkopf 22, Ampel Ø12/Abstand 20/Mitte y=11, Seitenleiste 130, Liste 239 (Zeile 37), Linienraster 22,
-Standardfenster 736×443, Einzelnotiz 360×480, Mindestgröße 619×300 (ohne Ordner 489×300), Einzelnotiz 250×180 – Mindestmaße sind Annahmen, nicht am Original gemessen.
 
-Grenzen: Notizen mit Anhängen/Tabellen/Passwortschutz sind schreibgeschützt (Speichern würde sie in Notes beschädigen); Checklisten,
-Tabellen und Schriftfamilien werden nicht ins HTML zurückgeschrieben; Suche über die ersten 2000 Zeichen je Notiz.
+Dimensions (1×, measured from the reference): leather header 22, traffic lights Ø12 / pitch 20 / center y=11, sidebar 130, list 239 (row 37), line grid 22, default window 736×443, single note 360×480.
 
-Anhänge: Bilder (PNG/JPEG/GIF/TIFF bis 20 MP) lassen sich per Drag-and-drop oder Einsetzen in eine Notiz legen; sie werden als Data-URI in den
-Notiz-Body geschrieben, daraus legt Notizen einen echten Anhang an (geprüft, auch 3 MB über Temp-Datei). Grenzen der Scripting-Schnittstelle:
-andere Dateitypen lassen sich nicht anlegen (Hinweis statt stillem Verwerfen); vorhandene Anhänge sind weder auslesbar noch im Body enthalten –
-solche Notizen bleiben schreibgeschützt, und ein eingefügtes Bild erscheint nach einem App-Neustart nicht mehr im Editor (in Notizen bleibt es erhalten).
+## Data & privacy
 
-Sicherung (Ablage › Alle Notizen sichern … / Aus Sicherung wiederherstellen …): Ordner mit `manifest.json` (Schema 1) + je Notiz die unveränderte
-`.html` unter `Konto/Ordner/`. Wiederherstellung legt nur fehlende Notizen (nach ID) neu an und erstellt fehlende Ordner. Nicht enthalten:
-Anhänge (nicht auslesbar) und passwortgeschützte Notizen – beides wird im Manifest und im Abschlussdialog benannt. Testhilfen: `-backup=PFAD`, `-restore=PFAD`.
+RetroNotes has no database of its own. Notes live in the system Notes app (iCloud, On My Mac, …); the app only reads and writes them through Automation. Backups are plain folders you choose. No network access.
 
-## Release auf GitHub
-`./release.sh` → Developer-ID-Signatur mit Hardened Runtime (`Resources/RetroNotes.entitlements`: nur Apple-Events/Automation), Notarisierung (`notarytool`,
-Profil `Retromac` wie bei RetroMac), Stapeln und `build/RetroNotes-<Version>.zip` für GitHub Releases.
-Nicht ins Repository/Release: Apple-Icons und -Screenshots, Systemschriften (Noteworthy, Marker Felt, Lucida Grande). Das Icon (`Resources/icon-source.png`)
-ist KI-generiert (Gemini) – Nutzungsrechte vor Veröffentlichung selbst prüfen. Eine Lizenz für den Quellcode ist noch nicht gewählt.
+## Limitations
+
+- Notes with attachments, tables or password protection are **read-only** (saving would damage them in Notes).
+- Checklists, tables and font families are not written back to the HTML.
+- Only images can be attached; other file types cannot be created through the scripting interface (the app says so instead of dropping them silently). Existing attachments cannot be read, and an inserted image no longer shows in the editor after an app restart (it is kept in Notes).
+- Backups do not contain attachments (not readable) or password-protected notes; both are listed in the manifest and in the final dialog.
+- Restoring only adds missing notes and folders; it never overwrites existing ones.
+- Minimum window sizes (619×300, without folders 489×300; single note 250×180) are assumptions, not measured on the original.
+
+## License & legal
+
+- **Code:** [GNU General Public License v3.0](LICENSE) (GPL-3.0). Copyright © 2026 Maik Klotz.
+- **No affiliation with Apple:** RetroNotes is an independent open-source project, neither authorized nor endorsed by Apple. No Apple images, fonts, sounds or textures are included (reference screenshots and system fonts such as Noteworthy, Marker Felt and Lucida Grande are not part of the repository; fonts come from the installed system). Apple, Mac, macOS, OS X and Mountain Lion are trademarks of Apple Inc.
+- **App icon:** `Resources/icon-source.png` and `AppIcon.icns` are AI-generated (Gemini) and are **not** covered by the GPL; all rights reserved. Forks should use their own icon.
+- **Distribution:** GitHub only (source and notarized releases), not the App Store.
