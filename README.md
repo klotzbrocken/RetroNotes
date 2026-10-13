@@ -6,7 +6,7 @@ A native macOS recreation of **Notes from OS X 10.8**: leather header, yellow li
 
 > Swift 5.9 · AppKit · macOS 14 or later · English and German · GPL-3.0
 >
-> **Note:** RetroNotes is an independent project and is not affiliated with Apple Inc. The design is *inspired by* OS X 10.8. Apple, Mac, macOS, OS X and Mountain Lion are trademarks of Apple Inc.
+> **Note:** RetroNotes is a non-commercial fan project, made out of respect for Apple. It is an independent project and is not affiliated with Apple Inc. The design is *inspired by* OS X 10.8. Apple, Mac, macOS, OS X and Mountain Lion are trademarks of Apple Inc.
 
 ## Features
 
@@ -73,6 +73,7 @@ RetroNotes has no database of its own. Notes live in the system Notes app (iClou
 ## License & legal
 
 - **Code:** [GNU General Public License v3.0](LICENSE) (GPL-3.0). Copyright © 2026 Maik Klotz.
+- **Fan project:** RetroNotes is a non-commercial fan project, made out of respect and admiration for Apple and the design of OS X 10.8. It is free of charge, makes no claim to any Apple trademark, design or artwork, and is provided "as is" without warranty (GPL-3.0, sections 15–16). If you are a rights holder and have a concern, please open an issue – I will respond promptly and in good faith.
 - **No affiliation with Apple:** RetroNotes is an independent open-source project, neither authorized nor endorsed by Apple. No Apple images, fonts, sounds or textures are included (reference screenshots and system fonts such as Noteworthy, Marker Felt and Lucida Grande are not part of the repository; fonts come from the installed system). Apple, Mac, macOS, OS X and Mountain Lion are trademarks of Apple Inc.
 - **App icon:** `Resources/icon-source.png` and `AppIcon.icns` are AI-generated (Gemini) and are **not** covered by the GPL; all rights reserved. Forks should use their own icon.
 - **Distribution:** GitHub only (source and notarized releases), not the App Store.
